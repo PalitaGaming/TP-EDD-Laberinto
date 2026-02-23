@@ -10,11 +10,13 @@ public enum TileType
     End
 }
 
+
 public class Tile : MonoBehaviour
 {
     public int x;
     public int y;
 
+    public Vector3 worldPosition;
     public TileType type = TileType.Floor;
 
     private SpriteRenderer sr;

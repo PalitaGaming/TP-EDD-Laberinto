@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    public int width = 10;
-    public int height = 10;
+    public int width = 12;
+    public int height = 12;
 
     public GameObject tilePrefab;
     public GameObject character;
@@ -32,8 +32,16 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                GameObject obj = Instantiate(tilePrefab, new Vector3(x, y, 0), Quaternion.identity);
+                float offsetX = width / 2f;
+                float offsetY = height / 2f;
+
+                GameObject obj = Instantiate(
+                    tilePrefab,
+                    new Vector3(x - offsetX + 0.5f, y - offsetY + 0.5f, 0),
+                    Quaternion.identity
+                );
                 Tile tile = obj.GetComponent<Tile>();
+                tile.worldPosition = obj.transform.position;
 
                 tile.x = x;
                 tile.y = y;
@@ -45,7 +53,28 @@ public class GridManager : MonoBehaviour
 
     public void PaintTile(Tile tile)
     {
+        if (currentBrush == TileType.Start)
+        {
+            RemoveOldTile(TileType.Start);
+        }
+
+        if (currentBrush == TileType.End)
+        {
+            RemoveOldTile(TileType.End);
+        }
+
         tile.SetType(currentBrush);
+    }
+
+    void RemoveOldTile(TileType type)
+    {
+        foreach (Tile t in grid)
+        {
+            if (t.type == type)
+            {
+                t.SetType(TileType.Floor);
+            }
+        }
     }
 
     public Tile GetStart()
@@ -88,7 +117,7 @@ public class GridManager : MonoBehaviour
         {
             solutionText.text = "Tiene solución";
 
-            character.transform.position = new Vector3(start.x, start.y, 0);
+            character.transform.position = start.worldPosition;
 
             StartCoroutine(MoveCharacter(path));
         }
@@ -98,7 +127,7 @@ public class GridManager : MonoBehaviour
     {
         foreach (Tile tile in path)
         {
-            character.transform.position = new Vector3(tile.x, tile.y, 0);
+            character.transform.position = tile.worldPosition;
             yield return new WaitForSeconds(0.3f);
         }
     }
