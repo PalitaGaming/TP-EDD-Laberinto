@@ -10,7 +10,6 @@ public enum TileType
     End
 }
 
-
 public class Tile : MonoBehaviour
 {
     public int x;
@@ -40,16 +39,32 @@ public class Tile : MonoBehaviour
             case TileType.Floor:
                 sr.color = Color.white;
                 break;
+
             case TileType.Wall:
                 sr.color = Color.black;
                 break;
+
             case TileType.Start:
                 sr.color = Color.blue;
                 break;
+
             case TileType.End:
                 sr.color = Color.red;
                 break;
         }
+    }
+
+    public void MarkPath()
+    {
+        if (type == TileType.Floor)
+        {
+            sr.color = new Color(1f, 0.5f, 0f);
+        }
+    }
+
+    public void ClearPath()
+    {
+        UpdateColor();
     }
 
     void OnMouseDown()
@@ -57,4 +72,3 @@ public class Tile : MonoBehaviour
         FindObjectOfType<GridManager>().PaintTile(this);
     }
 }
-

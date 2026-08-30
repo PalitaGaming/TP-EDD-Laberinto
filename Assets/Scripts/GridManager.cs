@@ -12,6 +12,10 @@ public class GridManager : MonoBehaviour
 
     public Tile[,] grid;
 
+    private List<Tile> currentPath;
+
+    private bool isMoving= false;
+
     public TileType currentBrush = TileType.Wall;
 
     public void SetBrushToWall() => currentBrush = TileType.Wall;
@@ -63,6 +67,8 @@ public class GridManager : MonoBehaviour
             RemoveOldTile(TileType.End);
         }
 
+        ClearPath();
+
         tile.SetType(currentBrush);
     }
 
@@ -93,11 +99,27 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+    void ClearPath()
+    {
+        if (currentPath == null)
+            return;
+
+        foreach (Tile tile in currentPath)
+        {
+            tile.ClearPath();
+        }
+
+        currentPath = null;
+    }
+
     public Pathfinding pathfinding;
     public TMPro.TextMeshProUGUI solutionText;
 
     public void Solve()
     {
+        if (isMoving)
+            return;
+
         Tile start = GetStart();
         Tile end = GetEnd();
 
@@ -107,9 +129,9 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        List<Tile> path = pathfinding.Dijkstra(start, end);
+        currentPath = pathfinding.Dijkstra(start, end);
 
-        if (path == null)
+        if (currentPath == null)
         {
             solutionText.text = "No tiene solución";
         }
@@ -119,17 +141,53 @@ public class GridManager : MonoBehaviour
 
             character.transform.position = start.worldPosition;
 
-            StartCoroutine(MoveCharacter(path));
+            StartCoroutine(MoveCharacter(currentPath));
         }
     }
 
     IEnumerator MoveCharacter(List<Tile> path)
     {
+        isMoving = true;
+
         foreach (Tile tile in path)
         {
             character.transform.position = tile.worldPosition;
+
+            if (tile.type == TileType.Floor)
+            {
+                tile.MarkPath();
+            }
+
             yield return new WaitForSeconds(0.3f);
         }
+
+        isMoving = false;
+    }
+
+    IEnumerator MoveCharacterBack()
+    {
+        isMoving = true;
+
+        for (int i = currentPath.Count - 1; i >= 0; i--)
+        {
+            Tile tile = currentPath[i];
+
+            character.transform.position = tile.worldPosition;
+
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        isMoving = false;
+    }
+    public void ReturnToStart()
+    {
+        if (isMoving)
+            return;
+
+        if (currentPath == null || currentPath.Count == 0)
+            return;
+
+        StartCoroutine(MoveCharacterBack());
     }
 }
 

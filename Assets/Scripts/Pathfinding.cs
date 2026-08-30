@@ -73,13 +73,16 @@ public class Pathfinding : MonoBehaviour
         List<Tile> path = new List<Tile>();
         Tile current = end;
 
+        path.Add(current);
+
         while (cameFrom.ContainsKey(current))
         {
-            path.Add(current);
             current = cameFrom[current];
+            path.Add(current);
         }
 
         path.Reverse();
+
         return path;
     }
 }
