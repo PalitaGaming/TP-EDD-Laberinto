@@ -71,4 +71,12 @@ public class Tile : MonoBehaviour
     {
         FindObjectOfType<GridManager>().PaintTile(this);
     }
+
+    void OnMouseEnter()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            FindObjectOfType<GridManager>().PaintTile(this);
+        }
+    }
 }
